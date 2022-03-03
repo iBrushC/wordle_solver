@@ -74,7 +74,6 @@ map<string, int> get_words_scores(string filename, map<string, float> freqs) {
         
         if (freqs.find(it->first) != freqs.end()) {
             it->second *= freqs[it->first];
-            // if (it->first == "gleam") { cout << it->first << ": " << it->second << endl; }
         }
     }
 
@@ -90,7 +89,7 @@ vector<pair<string, int>> filter_words(vector<pair<string, int>> words, string g
     if (yellow.length() < 5) { yellow.insert(yellow.end(), 5-yellow.length(), '-'); }
     if (green.length() < 5) { green.insert(green.end(), 5-green.length(), '-'); }
 
-    cout << grey << endl << yellow << endl << green << endl;
+    // cout << grey << endl << yellow << endl << green << endl;
 
     // Unbelievably inefficient
     vector<pair<string, int>>::iterator it;
@@ -114,6 +113,7 @@ vector<pair<string, int>> filter_words(vector<pair<string, int>> words, string g
         // Checking for greys
         for (auto c : grey) {
             if (c == '-' || c == '\n') { break; }
+            if (green.find(c) != -1 || yellow.find(c) != -1) { continue; }
             if (it->first.find(c) != -1) {
                 keep = false;
                 break; 
@@ -147,18 +147,22 @@ int main() {
 
         cout << "Greys: ";
         cin >> tmpgreys;
+        if (tmpgreys == "DONE") { break; }
         greys += tmpgreys;
 
         cout << "Yellows: ";
         cin >> yellows;
+        yellows.erase(remove(yellows.begin(), yellows.end(), '\n'), yellows.end());
 
         cout << "Greens: ";
         cin >> greens;
+        greens.erase(remove(greens.begin(), greens.end(), '\n'), greens.end());
 
         cout << "\n\n";
 
         sorted = filter_words(sorted, greys, yellows, greens);
 
+        cout << "SUGGESTED WORDS:" << endl;
         vector<pair<string, int>>::iterator it = sorted.begin();
         for (j=0; j<5; j++) {
             if (it == sorted.end()) { continue; }
