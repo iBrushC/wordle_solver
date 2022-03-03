@@ -7,23 +7,11 @@
 
 using namespace std;  // Cardinal sin
 
-// Comparison function for map sorting
+// Comparison function for value sorting
 bool cmp(pair<string, int>& a,
          pair<string, int>& b)
 {
     return a.second < b.second;
-}
-  
-// Sorts a map by its values
-vector<pair<string, int>> sort_map(map<string, int>& _map) {
-    vector<pair<string, int>> vec;
-  
-    for (auto& it : _map) {
-        vec.push_back(it);
-    }
-    sort(vec.rbegin(), vec.rend(), cmp);
-
-    return vec;
 }
 
 
@@ -50,8 +38,8 @@ map<string, float> get_frequencies(string filename) {
 }
 
 // Gets each word and assigns it a score based on its letters and their positions
-map<string, int> get_words_scores(string filename, map<string, float> freqs) {
-    map<string, int> words;
+vector<pair<string, int>> get_words_scores(string filename, map<string, float> freqs) {
+    vector<pair<string, int>> words;
     map<char, int> letters[5];
     ifstream file(filename);
     string line;
@@ -62,10 +50,10 @@ map<string, int> get_words_scores(string filename, map<string, float> freqs) {
             letters[i][line[i]] += 1;
         }
 
-        words[line.substr(0,5)] = 0;
+        words.push_back(make_pair(line.substr(0,5), 0));
     }
 
-    map<string, int> :: iterator it;
+    vector<pair<string, int>> :: iterator it;
     for (it = words.begin(); it != words.end(); it++) { 
         for (i=0; i<5; i++) {
             it->second += letters[i][it->first[i]];
@@ -130,10 +118,8 @@ vector<pair<string, int>> filter_words(vector<pair<string, int>> words, string g
 
 int main() {
     map<string, float> frequencies = get_frequencies("unigram_freq.csv");
-    map<string, int> words = get_words_scores("valid-wordle-words.txt", frequencies);
-
-
-    vector<pair<string, int>> sorted = sort_map(words);
+    vector<pair<string, int>> words = get_words_scores("valid-wordle-words.txt", frequencies);
+    sort(words.rbegin(), words.rend(), cmp);
 
     int i, j;
     string tmpgreys, greys, yellows, greens;
@@ -160,12 +146,12 @@ int main() {
 
         cout << "\n\n";
 
-        sorted = filter_words(sorted, greys, yellows, greens);
+        words = filter_words(words, greys, yellows, greens);
 
         cout << "SUGGESTED WORDS:" << endl;
-        vector<pair<string, int>>::iterator it = sorted.begin();
+        vector<pair<string, int>>::iterator it = words.begin();
         for (j=0; j<5; j++) {
-            if (it == sorted.end()) { continue; }
+            if (it == words.end()) { continue; }
             cout << it->first << ": " << it->second << endl;
             it++;
         }
